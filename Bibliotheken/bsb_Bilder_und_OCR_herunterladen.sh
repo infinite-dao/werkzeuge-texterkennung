@@ -146,7 +146,7 @@ echo -e "\033[0;32m# Bilddateien und XML-Texterkennungsseiten herunterladen und 
 else
 echo -e "\033[0;32m# Nur XML-Texterkennungsseiten herunterladen und XML Textauszug erstellen …\033[0m"
 fi 
-echo -e "\033[0;32m# Jetzt ${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER} Seitennummern von \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen und Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m zusammenfügen?\033[0m"
+echo -e "\033[0;32m# Jetzt ${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER} Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen und Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m zusammenfügen?\033[0m"
 if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]];then
 echo -e "\033[0;32m# (Datei ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} wird überschrieben)\033[0m"
 fi
