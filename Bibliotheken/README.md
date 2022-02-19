@@ -35,5 +35,5 @@ Nötige Dateien:
 - Linux, BASH oder UNIX (?Mac)
 - Java und [Java Paket saxon9](https://www.saxonica.com/html/documentation9.4/documentation.html) für XSLT Verarbeitung (zwingend erforderlich, könnte auch ein anderer XSLT-Interpreter sein)
 - XSL Datei [`./bsb_OCR_Text_herausfiltern.xsl`](bsb_OCR_Text_herausfiltern.xsl) zu Stilverarbeitungsanweisungen (kann angepaßt werden falls sich XML-Struktur der Programm-Schnitt-Stelle (auch API) änderte oder falls andere Ausgabe gewünscht
-- `pandoc` (XML → Textumwandlung, kann fehlen, siehe https://pandoc.org) `sed` (Stream Editor, kann fehlen)
+- `sed` (Stream Editor); `pandoc` (XML → Textumwandlung, kann fehlen, siehe https://pandoc.org) 
 
