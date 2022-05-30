@@ -1,8 +1,9 @@
 # Werkzeuge für Texterkennung
 
 Dieses Projekt wird verschiedene Programmierwerkzeuge beinhalten …
-- für die automatische Texterkennung, oder auch
-- um schon vorhandene Texterkennungsdaten über die Programm-Schnittstelle (PSS alias API) von Bibliotheken herunterzuladen.
+- für die automatische Texterkennung
+  - Ordner [`./Texterkennung`](./Texterkennung) Programme zur Bild-Texterkennung
+- um schon vorhandene Texterkennungsdaten über die **P**rogramm-**S**chnitt-**S**telle (PSS alias API) von Bibliotheken herunterzuladen.
   - Ordner [`./Bibliotheken`](./Bibliotheken) um Programm-Schnittstellen von Bibliotheken abrufen für schon vorhandene Texterkennungsdaten
 
 # Hinweise
