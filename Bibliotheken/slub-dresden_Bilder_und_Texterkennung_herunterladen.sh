@@ -25,14 +25,15 @@
   # - dieseNetzQuelleGroesstmoeglichesBild
   # # # # # 
   ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
-  LETZTE_SEITENNUMMER=762 # Ganzzahl
-  BIB_CODE_NUMER="ZiemMitt_1669632067" # https://digital.slub-dresden.de/data/kitodo/sibebuvod_278555764/sibebuvod_278555764_tif/jpegs/00000675.tif.original.jpg
+  LETZTE_SEITENNUMMER=190 # Ganzzahl
+  BIB_CODE_NUMER="illuse_34545670X" # https://digital.slub-dresden.de/data/kitodo/sibebuvod_278555764/sibebuvod_278555764_tif/jpegs/00000675.tif.original.jpg
 
-  WERK_KURZTITEL="Mittelhochdeutsches Wörterbuch - Ziemann - 1838" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
-  ANWEISUNG_LADE_BILDER_HERUNTER=0     # 0 oder 1
-  ANWEISUNG_ERGAENZE_DTD_HTML=1     # 0 oder 1
-  ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1     # 0 oder 1
-  ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1     # 0 oder 1
+  WERK_KURZTITEL="Das illustrirtes Seilerbuch - Denhöfer - 1864" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
+  ANWEISUNG_LADE_BILDER_HERUNTER=1            # 0 oder 1
+  ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER=0     # 0 oder 1
+  ANWEISUNG_ERGAENZE_DTD_HTML=0               # 0 oder 1
+  ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1  # 0 oder 1
+  ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1  # 0 oder 1
 # ------------------------------------------------
 # Ende einstellbarer Variablen
 # ------------------------------------------------
@@ -165,33 +166,52 @@ function dieseNetzQuelleGroesstmoeglichesBild () {
 # ------------------------------------------------
 # Ausgabe bevor Programm beginnt
 # ------------------------------------------------
-echo -e "\033[0;32m########################################################################\033[0m"
-echo -e "\033[0;32m#            Speichern und Herunterladen vom MDZ                        \033[0m"
-echo -e "\033[0;32m# (Münchner DigitalisierungsZentrum: https://www.digitale-sammlungen.de)\033[0m"
-echo -e "\033[0;32m########################################################################\033[0m"
+echo -e "\033[0;32m########################################################################################\033[0m"
+echo -e "\033[0;32m#                   Bilder/Texterkennung speichern von SLUB Dresden                     \033[0m"
+echo -e "\033[0;32m# (Sächsische Landesbibliothek … Universitätsbibliothek https://digital.slub-dresden.de)\033[0m"
+echo -e "\033[0;32m########################################################################################\033[0m"
+
+if [[ $ANWEISUNG_LADE_BILDER_HERUNTER -eq 0 ]] && [[ $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -eq 0 ]];then
+echo -e "\033[0;32m# \033[0;31mFehler:\033[0;32m keine Anweisung gefunden, weder Bilder noch Textauszug-Dateien sollen heruntergeladen werden (\033[0;31mAbbruch\033[0;32m)\033[0m"
+  exit 1;
+fi
+
 
 if [[ $ANWEISUNG_LADE_BILDER_HERUNTER -gt 0 ]];then
-echo -e "\033[0;32m# Bilddateien und XML-Texterkennungsseiten herunterladen und XML Textauszug erstellen …\033[0m"
-else
-echo -e "\033[0;32m# Nur XML-Texterkennungsseiten herunterladen und XML Textauszug erstellen …\033[0m"
+echo -e "\033[0;32m# Bilddateien herunterladen …\033[0m"
+# else
+# echo -e "\033[0;32m# Keine Bild herunterladen und XML Textauszug erstellen …\033[0m"
 fi 
-if [[ $ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG -gt 0 ]];then
+
+if [[ $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -eq 0 ]];then
+echo -e "\033[0;32m# Ohne XML-Texterkennungsseiten …\033[0m"
+fi 
+
+if [[ $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
+  if [[ $ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG -gt 0 ]];then
 echo -e "\033[0;32m# Nacharbeiten: Bereinige schlußendlich einzelseitige Textauszug-Dateien …\033[0m"
-else
+  else
 echo -e "\033[0;32m# Nacharbeiten: Einzelseitige Textauszug-Dateien \033[0;31mbleiben\033[0;32m im Verzeichnis liegen …\033[0m"
-fi 
-if [[ $ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK -gt 0 ]];then
+  fi 
+
+  if [[ $ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK -gt 0 ]];then
 echo -e "\033[0;32m# Nacharbeiten: Bereinige schlußendlich einzelseitige Texterkennung-Bibliothek-Dateien …\033[0m"
-else
+  else
 echo -e "\033[0;32m# Nacharbeiten: Einzelseitige Texterkennung-Bibliothek-Dateien \033[0;31mbleiben\033[0;32m im Verzeichnis liegen …\033[0m"
-fi 
+  fi 
+fi
 
 echo -e "\033[0;32m# Arbeitsverzeichnis \033[0m${PWD}\033[0m"
 
+if [[ $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
 echo -e "\033[0;32m# Jetzt \033[0m${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER}\033[0;32m Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen und Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m zusammenfügen?\033[0m"
-if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]];then
+  if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]];then
 echo -e "\033[0;32m# (vorhandene Datei ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} wird \033[0;31müberschrieben\033[0;32m)\033[0m"
+  fi
+else
+echo -e "\033[0;32m# Jetzt \033[0m${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER}\033[0;32m Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m als z.B. \033[0m$(dieseBilddatei $LETZTE_SEITENNUMMER)\033[0;32m herunterladen?\033[0m"
 fi
+
 echo -en "\033[0;32m# (ja/\033[4mnein\e[0;32m)\033[0m "
 
 # ------------------------------------------------
@@ -238,95 +258,103 @@ for diese_nummernseite in `seq --equal-width $ERSTE_SEITENNUMMER  $LETZTE_SEITEN
     echo -en "\n"
   fi
   # # # # # # # # # # # # # # # # #  
-  echo -en "# $diese_nummernseite von $LETZTE_SEITENNUMMER: $( dieseXmlBibliotheksportalDatei $diese_nummernseite ) herunterladen …"; 
-  if [[ -e "$( dieseXmlBibliotheksportalDatei $diese_nummernseite )" ]]; then
-    if [[ $( find . -maxdepth 1 -empty -name "$( dieseXmlBibliotheksportalDatei $diese_nummernseite )" ) ]]; then
-    echo -en "$( dieseXmlBibliotheksportalDatei $diese_nummernseite ) (überschreibe leere Bibliotheksdatei) …"; 
-    wget --quiet `dieseNetzQuelleApiXmlHtmlSeite $diese_nummernseite`  --output-document="$( dieseXmlBibliotheksportalDatei $diese_nummernseite )";
+  if [[  $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
+    echo -en "# $diese_nummernseite von $LETZTE_SEITENNUMMER: $( dieseXmlBibliotheksportalDatei $diese_nummernseite ) herunterladen …"; 
+    if [[ -e "$( dieseXmlBibliotheksportalDatei $diese_nummernseite )" ]]; then
+      if [[ $( find . -maxdepth 1 -empty -name "$( dieseXmlBibliotheksportalDatei $diese_nummernseite )" ) ]]; then
+      echo -en "$( dieseXmlBibliotheksportalDatei $diese_nummernseite ) (überschreibe leere Bibliotheksdatei) …"; 
+      wget --quiet `dieseNetzQuelleApiXmlHtmlSeite $diese_nummernseite`  --output-document="$( dieseXmlBibliotheksportalDatei $diese_nummernseite )";
+      else
+      echo -en "$( dieseXmlBibliotheksportalDatei $diese_nummernseite ) (überspringe, vorhandene Bibliotheksdatei) …"; 
+      fi
     else
-    echo -en "$( dieseXmlBibliotheksportalDatei $diese_nummernseite ) (überspringe, vorhandene Bibliotheksdatei) …"; 
+      wget --quiet `dieseNetzQuelleApiXmlHtmlSeite $diese_nummernseite`  --output-document="$( dieseXmlBibliotheksportalDatei $diese_nummernseite )";
     fi
-  else
-    wget --quiet `dieseNetzQuelleApiXmlHtmlSeite $diese_nummernseite`  --output-document="$( dieseXmlBibliotheksportalDatei $diese_nummernseite )";
-  fi
-  if [[ $ANWEISUNG_ERGAENZE_DTD_HTML -gt 0 ]];then
-    if [[ $(cat "$(dieseXmlBibliotheksportalDatei $diese_nummernseite)" | tr -d '\n' | grep -ci '^<html') -eq 1 ]];then 
-      echo -en ', füge DTD Deklaration voran …' ;
-      echo "$DTD_HTML" > Zwischenablage.html && cat "$(dieseXmlBibliotheksportalDatei $diese_nummernseite)" >> Zwischenablage.html && mv Zwischenablage.html "$(dieseXmlBibliotheksportalDatei $diese_nummernseite)"
+    if [[ $ANWEISUNG_ERGAENZE_DTD_HTML -gt 0 ]];then
+      if [[ $(cat "$(dieseXmlBibliotheksportalDatei $diese_nummernseite)" | tr -d '\n' | grep -ci '^<html') -eq 1 ]];then 
+        echo -en ', füge DTD Deklaration voran …' ;
+        echo "$DTD_HTML" > Zwischenablage.html && cat "$(dieseXmlBibliotheksportalDatei $diese_nummernseite)" >> Zwischenablage.html && mv Zwischenablage.html "$(dieseXmlBibliotheksportalDatei $diese_nummernseite)"
+      fi
     fi
-  fi    
   echo -en "\n"
+  fi
 done
 
 # ------------------------------------------------
 # Texterkennung vermittels XSLT herauslesen und Einzeldokumente schreiben und Gesamtdokument erstellen
 # ------------------------------------------------
-for diese_nummernseite in `seq --equal-width $ERSTE_SEITENNUMMER  $LETZTE_SEITENNUMMER`; do
-  if [[ ` expr $diese_nummernseite + 0 ` -eq `expr $ERSTE_SEITENNUMMER + 0 ` ]];then 
-    echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' > "$ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE"; 
-  fi
-
-  echo -en "# $diese_nummernseite von $LETZTE_SEITENNUMMER: $( dieseXmlBibliotheksportalDatei $diese_nummernseite ) => $( dieseTexterkennungsXmlDatei $diese_nummernseite ) übertragen … ";
-  
-  if [[ $( find . -maxdepth 1 -empty -name "$( dieseXmlBibliotheksportalDatei $diese_nummernseite )" ) ]]; then
-    echo -e "\n\e[31m# Fehler:\e[0m Datei „$( dieseXmlBibliotheksportalDatei $diese_nummernseite )“ ist leer. Kann keine Textdaten auslesen (überspringe diesen Schritt)";
-  else
-    # nice -n 19 java -jar $SAXON_JAR_DATEI_PFAD  -xsl:"$XSL_STIL_DATEI" -s:"$( dieseXmlBibliotheksportalDatei $diese_nummernseite )" -o:` dieseTexterkennungsXmlDatei $diese_nummernseite `;
-    nice -n 19 java -jar $SAXON_JAR_DATEI_PFAD  -warnings:fatal -xsl:"$XSL_STIL_DATEI" -s:"$(dieseXmlBibliotheksportalDatei $diese_nummernseite)" -o:"$(dieseTexterkennungsXmlDatei $diese_nummernseite)";
-    echo -en "und befülle $ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE …\n"
-    echo '<!--' "Seite $diese_nummernseite -->"            >> "$ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE";
-    if [[ -e "$( dieseTexterkennungsXmlDatei $diese_nummernseite )" ]];then
-      cat "$( dieseTexterkennungsXmlDatei $diese_nummernseite )" >> "$ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE";
-    else
-      echo -e "\e[31m# Fehler:\e[0m# Datei $( dieseTexterkennungsXmlDatei $diese_nummernseite ) fehlt (überspringe und schreibe Notiz hinein) …"
-      echo "<!-- Fehlende Datei $( dieseTexterkennungsXmlDatei $diese_nummernseite ) -->" >> "$ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE";
+if [[  $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
+  for diese_nummernseite in `seq --equal-width $ERSTE_SEITENNUMMER  $LETZTE_SEITENNUMMER`; do
+    if [[ ` expr $diese_nummernseite + 0 ` -eq `expr $ERSTE_SEITENNUMMER + 0 ` ]];then 
+      echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' > "$ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE"; 
     fi
-  fi
 
-done
+    echo -en "# $diese_nummernseite von $LETZTE_SEITENNUMMER: $( dieseXmlBibliotheksportalDatei $diese_nummernseite ) => $( dieseTexterkennungsXmlDatei $diese_nummernseite ) übertragen … ";
+    
+    if [[ $( find . -maxdepth 1 -empty -name "$( dieseXmlBibliotheksportalDatei $diese_nummernseite )" ) ]]; then
+      echo -e "\n\e[31m# Fehler:\e[0m Datei „$( dieseXmlBibliotheksportalDatei $diese_nummernseite )“ ist leer. Kann keine Textdaten auslesen (überspringe diesen Schritt)";
+    else
+      # nice -n 19 java -jar $SAXON_JAR_DATEI_PFAD  -xsl:"$XSL_STIL_DATEI" -s:"$( dieseXmlBibliotheksportalDatei $diese_nummernseite )" -o:` dieseTexterkennungsXmlDatei $diese_nummernseite `;
+      nice -n 19 java -jar $SAXON_JAR_DATEI_PFAD  -warnings:fatal -xsl:"$XSL_STIL_DATEI" -s:"$(dieseXmlBibliotheksportalDatei $diese_nummernseite)" -o:"$(dieseTexterkennungsXmlDatei $diese_nummernseite)";
+      echo -en "und befülle $ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE …\n"
+      echo '<!--' "Seite $diese_nummernseite -->"            >> "$ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE";
+      if [[ -e "$( dieseTexterkennungsXmlDatei $diese_nummernseite )" ]];then
+        cat "$( dieseTexterkennungsXmlDatei $diese_nummernseite )" >> "$ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE";
+      else
+        echo -e "\e[31m# Fehler:\e[0m# Datei $( dieseTexterkennungsXmlDatei $diese_nummernseite ) fehlt (überspringe und schreibe Notiz hinein) …"
+        echo "<!-- Fehlende Datei $( dieseTexterkennungsXmlDatei $diese_nummernseite ) -->" >> "$ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE";
+      fi
+    fi
+  done
+fi
   
 
 
 # ------------------------------------------------
 # Textumwandlung von XML in reinen Text
 # ------------------------------------------------
-if command -v pandoc &> /dev/null
-then
-  if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]] ||  [[ $( find . -maxdepth 1 -empty -name "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ) ]]; then
-    echo "# Verarbeitung: erstelle Textdatei (XML -> TXT, Programm pandoc) ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt …"
-    echo "# Verarbeitung: füge <br/> zwischenzeitlich ein vor jeder </Zeile>, damit Zeilenumbrüche in Textdatei erscheinen, sonst würde pandoc fließende Absätze ausformen …"
-    sed -r 's@</Zeile>$@<br/></Zeile>@;'  "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" | pandoc -f html -t plain > "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt"
-    echo "# Ergebnis siehe  XML-Datei: ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}"
-    echo "# Ergebnis siehe Text-Datei: ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt"
+if [[  $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
+  if command -v pandoc &> /dev/null
+  then
+    if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]] ||  [[ $( find . -maxdepth 1 -empty -name "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ) ]]; then
+      echo "# Verarbeitung: erstelle Textdatei (XML -> TXT, Programm pandoc) ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt …"
+      echo "# Verarbeitung: füge <br/> zwischenzeitlich ein vor jeder </Zeile>, damit Zeilenumbrüche in Textdatei erscheinen, sonst würde pandoc fließende Absätze ausformen …"
+      sed -r 's@</Zeile>$@<br/></Zeile>@;'  "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" | pandoc -f html -t plain > "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt"
+      echo "# Ergebnis siehe  XML-Datei: ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}"
+      echo "# Ergebnis siehe Text-Datei: ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt"
+    else
+      echo -e "\e[31m# Fehler:\e[0m XML-Datei für den Textauszug ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} konnte nicht erstellt werden (vielleicht gibt es Netzwerkprobleme oder andere Fehler) …"
+    fi
   else
-    echo -e "\e[31m# Fehler:\e[0m XML-Datei für den Textauszug ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} konnte nicht erstellt werden (vielleicht gibt es Netzwerkprobleme oder andere Fehler) …"
-  fi
-else
-  if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]] ||  [[ $( find . -maxdepth 1 -empty -name "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ) ]]; then
-    echo "# Ergebnis siehe  XML-Datei: ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}"
-  else
-    echo -e "\e[31m# Fehler:\e[0m XML-Datei für den Textauszug ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} konnte nicht erstellt werden (vielleicht gibt es Netzwerkprobleme oder andere Fehler) …"
+    if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]] ||  [[ $( find . -maxdepth 1 -empty -name "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ) ]]; then
+      echo "# Ergebnis siehe  XML-Datei: ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}"
+    else
+      echo -e "\e[31m# Fehler:\e[0m XML-Datei für den Textauszug ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} konnte nicht erstellt werden (vielleicht gibt es Netzwerkprobleme oder andere Fehler) …"
+    fi
   fi
 fi
 
 echo -e "\033[0;32m# ----------------------------------\033[0m"
 echo -e "\033[0;32m# Ende: folgende Dateien bleiben noch übrig (könnten später vielleicht glöscht werden) …\033[0m"
-suchfilter_bibo=`echo "$(dieseXmlBibliotheksportalDatei $LETZTE_SEITENNUMMER)" | sed -r 's@_[0-9]+.html@_*.html@' `
-if [[ $ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK -gt 0 ]];then
-  echo -e "# Lösche Einzel-Dateien \033[0;37m$suchfilter_bibo\033[0m …"
-  find . -name "$suchfilter_bibo" -type f -exec rm '{}' +
-else
-  find . -name "$suchfilter_bibo" -type f -exec ls '{}' + \
-    | sed -r 's@_[0-9]+.html@_*.html@' | uniq -c | sed 's@^@# Siehe auch Dateien:@'
-fi
 
-suchfilter_texterkennung=`echo "$( dieseTexterkennungsXmlDatei $LETZTE_SEITENNUMMER )" | sed -r 's@_[0-9]+.html@_*.html@' `
-if [[ $ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG -gt 0 ]];then
-  echo -e "# Lösche Einzel-Dateien \033[0;37m$suchfilter_texterkennung\033[0m …"
-  find . -name "$suchfilter_texterkennung" -type f -exec rm '{}' +
-else
-  find . -name "$suchfilter_texterkennung" -type f -exec ls '{}' + \
-    | sed -r 's@_[0-9]+.html@_*.html@' | uniq -c | sed 's@^@# Siehe auch Textauszug-Dateien:@'
+if [[  $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
+  suchfilter_bibo=`echo "$(dieseXmlBibliotheksportalDatei $LETZTE_SEITENNUMMER)" | sed -r 's@_[0-9]+.html@_*.html@' `
+  if [[ $ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK -gt 0 ]];then
+    echo -e "# Lösche Einzel-Dateien \033[0;37m$suchfilter_bibo\033[0m …"
+    find . -name "$suchfilter_bibo" -type f -exec rm '{}' +
+  else
+    find . -name "$suchfilter_bibo" -type f -exec ls '{}' + \
+      | sed -r 's@_[0-9]+.html@_*.html@' | uniq -c | sed 's@^@# Siehe auch Dateien:@'
+  fi
+
+  suchfilter_texterkennung=`echo "$( dieseTexterkennungsXmlDatei $LETZTE_SEITENNUMMER )" | sed -r 's@_[0-9]+.html@_*.html@' `
+  if [[ $ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG -gt 0 ]];then
+    echo -e "# Lösche Einzel-Dateien \033[0;37m$suchfilter_texterkennung\033[0m …"
+    find . -name "$suchfilter_texterkennung" -type f -exec rm '{}' +
+  else
+    find . -name "$suchfilter_texterkennung" -type f -exec ls '{}' + \
+      | sed -r 's@_[0-9]+.html@_*.html@' | uniq -c | sed 's@^@# Siehe auch Textauszug-Dateien:@'
+  fi
 fi
 
 if [[ $ANWEISUNG_LADE_BILDER_HERUNTER -gt 0 ]];then
