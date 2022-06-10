@@ -13,6 +13,8 @@
 # Abhängigkeit: XSL Datei der Stilverarbeitungsanweisungen bsb_OCR_Text_herausfiltern.xsl (zwingend erforderlich)
 # Abhängigkeit: nice (zwingend erforderlich; java als Hintergrundprozess starten)
 # Abhängigkeit: sed (Stream Editor), uniq (zum Zählen)
+# Abhängigkeit: wget herunterladen von Dateien
+# Abhängigkeit: jq (JSON Verarbeitungsprogramm, kann fehlen)
 # Abhängigkeit: pandoc (XML => Textumwandlung, kann fehlen)
 
 # ------------------------------------------------
@@ -25,7 +27,7 @@
   # - dieseNetzQuelleGroesstmoeglichesBild
   # # # # # 
   ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
-  LETZTE_SEITENNUMMER=100 # Ganzzahl
+  LETZTE_SEITENNUMMER=180 # Ganzzahl (kann von IIIF-Manifest automatisch ausgelesen werden, benötigt Programm jq)
   # BIB_CODE_NUMER="bsb10112188" # Alexander Kaufmann
   # BIB_CODE_NUMER="bsb10114299" # Mäurer, German: Gedichte und Gedanken eines Deutschen in Paris. 1: Gedichte
   # BIB_CODE_NUMER="bsb11161548" # Chwatal, Franz Xaver: Kinderlieder für Schule und Haus
@@ -71,6 +73,21 @@ DTD_HTML=`cat <<DTD
 ]>
 DTD
 `
+
+if command -v jq &> /dev/null
+then
+  diese_json_datei="${BIB_CODE_NUMER}-manifest.json"
+  
+  if [[ -e "${diese_json_datei}" ]];then
+    echo -e "\e[32m# Lese vorhandene IIIF Manifest für die Anzahl der Seiten (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
+    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq '.sequences[0].canvases | length ' )
+  else
+    echo -e "\e[32m# Erfasse IIIF Manifest aus dem Netz für die Anzahl der Seiten (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
+    wget --quiet --show-progress --output-document="${diese_json_datei}" \
+      https://api.digitale-sammlungen.de/iiif/presentation/v2/bsb11108561/manifest
+    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq '.sequences[0].canvases | length ' )
+  fi
+fi
 
 ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE=$(
   [ -z "$WERK_KURZTITEL"  ] && \
