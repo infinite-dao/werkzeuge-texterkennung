@@ -19,13 +19,13 @@
 # Variablen zum Anpassen bevor Programm ausgeführt wird
 # Anfang einstellbarer Variablen
 # ------------------------------------------------
-  XSL_STIL_DATEI="bsb-muenchen_Texterkennung_Text-herausfiltern.xsl"
+  XSL_STIL_DATEI="bsb-muenchen_Texterkennung_herausfiltern.xsl"
   # Hinweis: zu prüfen ist vielleicht auch, ob die api URL stimmig ist, siehe BASH-Funktionen:
   # - dieseNetzQuelleApiXmlHtmlSeite
   # - dieseNetzQuelleGroesstmoeglichesBild
   # # # # # 
   ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
-  LETZTE_SEITENNUMMER=180 # Ganzzahl
+  LETZTE_SEITENNUMMER=100 # Ganzzahl
   # BIB_CODE_NUMER="bsb10112188" # Alexander Kaufmann
   # BIB_CODE_NUMER="bsb10114299" # Mäurer, German: Gedichte und Gedanken eines Deutschen in Paris. 1: Gedichte
   # BIB_CODE_NUMER="bsb11161548" # Chwatal, Franz Xaver: Kinderlieder für Schule und Haus
@@ -48,11 +48,11 @@
   # BIB_CODE_NUMER="bsb11346535" # Ausführliche Arbeit von der Teutſchen Hauptſprache [3-5] Schottel 1663
   # BIB_CODE_NUMER="bsb10303169" # Flora von Deutschland Schlechtendahl 08
   # BIB_CODE_NUMER="bsb00102935" # 29 Gedichte Rückert
-  BIB_CODE_NUMER="bsb11308256" # 
+  BIB_CODE_NUMER="bsb11108561" # 
   
-  WERK_KURZTITEL="Bilder-Atlas Mechanische Technik - Berneck u.a. - Leipzig, 1875" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
+  WERK_KURZTITEL="ABC-Buch mit kurzen Lese-Uebungen - Jägersche Buchhandlung - Frankfurt a.M., 1799" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
   ANWEISUNG_LADE_BILDER_HERUNTER=1            # 0 oder 1
-  ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER=0     # 0 oder 1
+  ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER=1     # 0 oder 1
   ANWEISUNG_ERGAENZE_DTD_HTML=1               # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1  # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1  # 0 oder 1
