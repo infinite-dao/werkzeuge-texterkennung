@@ -26,8 +26,6 @@
   # - dieseNetzQuelleApiXmlHtmlSeite
   # - dieseNetzQuelleGroesstmoeglichesBild
   # # # # # 
-  ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
-  LETZTE_SEITENNUMMER=180 # Ganzzahl (kann von IIIF-Manifest automatisch ausgelesen werden, benötigt Programm jq)
   # BIB_CODE_NUMER="bsb10112188" # Alexander Kaufmann
   # BIB_CODE_NUMER="bsb10114299" # Mäurer, German: Gedichte und Gedanken eines Deutschen in Paris. 1: Gedichte
   # BIB_CODE_NUMER="bsb11161548" # Chwatal, Franz Xaver: Kinderlieder für Schule und Haus
@@ -51,6 +49,9 @@
   # BIB_CODE_NUMER="bsb10303169" # Flora von Deutschland Schlechtendahl 08
   # BIB_CODE_NUMER="bsb00102935" # 29 Gedichte Rückert
   BIB_CODE_NUMER="bsb11108561" # 
+
+  ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
+  LETZTE_SEITENNUMMER=180 # Ganzzahl (kann von IIIF-Manifest automatisch ausgelesen werden, benötigt Programm jq)
   
   WERK_KURZTITEL="ABC-Buch mit kurzen Lese-Uebungen - Jägersche Buchhandlung - Frankfurt a.M., 1799" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
   ANWEISUNG_LADE_BILDER_HERUNTER=1            # 0 oder 1
@@ -58,6 +59,7 @@
   ANWEISUNG_ERGAENZE_DTD_HTML=1               # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1  # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1  # 0 oder 1
+  ANWEISUNG_TILGE_JSON_MANIFEST=1             # 0 oder 1
 # ------------------------------------------------
 # Ende einstellbarer Variablen
 # ------------------------------------------------
@@ -84,7 +86,7 @@ then
   else
     echo -e "\e[32m# Erfasse IIIF Manifest aus dem Netz für die Anzahl der Seiten (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
     wget --quiet --show-progress --output-document="${diese_json_datei}" \
-      https://api.digitale-sammlungen.de/iiif/presentation/v2/bsb11108561/manifest
+      https://api.digitale-sammlungen.de/iiif/presentation/v2/${BIB_CODE_NUMER}/manifest
     LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq '.sequences[0].canvases | length ' )
   fi
 fi
@@ -400,6 +402,11 @@ suchfilter_bilder=`echo "$(dieseBilddatei $LETZTE_SEITENNUMMER)" | sed -r 's@_[0
 fi
 if [[ $ANWEISUNG_ERGAENZE_DTD_HTML -gt 0 ]];then
   if [[ -e Zwischenablage.html ]]; then rm Zwischenablage.html; fi
+fi
+
+if [[ $ANWEISUNG_TILGE_JSON_MANIFEST -gt 0 ]] && [[ -e "${BIB_CODE_NUMER}-manifest.json" ]] ;then
+  echo -e "\033[0;32m# Lösche JSON Manifest\033[0m ${BIB_CODE_NUMER}-manifest.json …"
+  rm "${BIB_CODE_NUMER}-manifest.json"
 fi
 
 echo -e "\033[0;32m# Fertig.\033[0m"
