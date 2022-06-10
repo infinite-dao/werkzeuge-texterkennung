@@ -13,6 +13,8 @@
 # Abhängigkeit: XSL Datei der Stilverarbeitungsanweisungen bsb_OCR_Text_herausfiltern.xsl (zwingend erforderlich)
 # Abhängigkeit: nice (zwingend erforderlich; java als Hintergrundprozess starten)
 # Abhängigkeit: sed (Stream Editor), uniq (zum Zählen)
+# Abhängigkeit: wget herunterladen von Dateien
+# Abhängigkeit: jq (JSON Verarbeitungsprogramm, kann fehlen)
 # Abhängigkeit: pandoc (XML => Textumwandlung, kann fehlen)
 
 # ------------------------------------------------
@@ -25,7 +27,7 @@
   # - dieseNetzQuelleGroesstmoeglichesBild
   # # # # # 
   ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
-  LETZTE_SEITENNUMMER=190 # Ganzzahl
+  LETZTE_SEITENNUMMER=190 # Ganzzahl (kann von IIIF-Manifest automatisch ausgelesen werden, benötigt Programm jq)
   BIB_CODE_NUMER="illuse_34545670X" # https://digital.slub-dresden.de/data/kitodo/sibebuvod_278555764/sibebuvod_278555764_tif/jpegs/00000675.tif.original.jpg
 
   WERK_KURZTITEL="Das illustrirtes Seilerbuch - Denhöfer - 1864" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
@@ -34,6 +36,7 @@
   ANWEISUNG_ERGAENZE_DTD_HTML=0               # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1  # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1  # 0 oder 1
+  ANWEISUNG_TILGE_JSON_MANIFEST=1             # 0 oder 1
 # ------------------------------------------------
 # Ende einstellbarer Variablen
 # ------------------------------------------------
@@ -49,6 +52,25 @@ DTD_HTML=`cat <<DTD
 ]>
 DTD
 `
+
+if command -v jq &> /dev/null
+then
+  diese_urn_id=$( echo "${BIB_CODE_NUMER}" | sed --regexp-extended 's@^[^_]+_@@' )
+  diese_json_datei="${BIB_CODE_NUMER}-manifest.json"
+  # BIB_CODE_NUMER="illuse_34545670X"
+  # https://iiif.slub-dresden.de/iiif/2/34545670X/manifest.json
+  
+  if [[ -e "${diese_json_datei}" ]];then
+    echo -e "\e[32m# Lese vorhandene IIIF Manifest für die Anzahl der Seiten (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
+    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq '.sequences[0].canvases | length ' )
+  else
+    echo -e "\e[32m# Erfasse IIIF Manifest aus dem Netz für die Anzahl der Seiten (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
+    wget --quiet --show-progress --output-document="${diese_json_datei}" \
+      https://iiif.slub-dresden.de/iiif/2/${diese_urn_id}/manifest.json
+    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq '.sequences[0].canvases | length ' )
+  fi
+fi
+
 
 ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE=$(
   [ -z "$WERK_KURZTITEL"  ] && \
@@ -365,6 +387,11 @@ fi
 if [[ $ANWEISUNG_ERGAENZE_DTD_HTML -gt 0 ]];then
   if [[ -e Zwischenablage.html ]]; then rm Zwischenablage.html; fi
 fi
+
+if [[ $ANWEISUNG_TILGE_JSON_MANIFEST -gt 0 ]] && [[ -e "${BIB_CODE_NUMER}-manifest.json" ]] ;then
+  echo -e "\033[0;32m# Lösche JSON Manifest\033[0m ${BIB_CODE_NUMER}-manifest.json …"
+  rm "${BIB_CODE_NUMER}-manifest.json"
+fi  
 
 echo -e "\033[0;32m# Fertig.\033[0m"
 echo -e "\033[0;32m# ---------------------------------------------------------------------\033[0m"
