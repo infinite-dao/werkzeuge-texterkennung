@@ -48,18 +48,18 @@
   # BIB_CODE_NUMER="bsb11346535" # Ausführliche Arbeit von der Teutſchen Hauptſprache [3-5] Schottel 1663
   # BIB_CODE_NUMER="bsb10303169" # Flora von Deutschland Schlechtendahl 08
   # BIB_CODE_NUMER="bsb00102935" # 29 Gedichte Rückert
-  BIB_CODE_NUMER="bsb11108561" # 
+  BIB_CODE_NUMER="bsb11190615" # 
 
   ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
   LETZTE_SEITENNUMMER=180 # Ganzzahl (kann von IIIF-Manifest automatisch ausgelesen werden, benötigt Programm jq)
   
-  WERK_KURZTITEL="ABC-Buch mit kurzen Lese-Uebungen - Jägersche Buchhandlung - Frankfurt a.M., 1799" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
+  WERK_KURZTITEL="Die mechanische Bearbeitung der Rohstoffe - Herget u.a. - Leipzig und Berlin 6.Aufl., 1874" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
   ANWEISUNG_LADE_BILDER_HERUNTER=1            # 0 oder 1
   ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER=1     # 0 oder 1
   ANWEISUNG_ERGAENZE_DTD_HTML=1               # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1  # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1  # 0 oder 1
-  ANWEISUNG_TILGE_JSON_MANIFEST=1             # 0 oder 1
+  ANWEISUNG_TILGE_JSON_MANIFEST=0             # 0 oder 1
 # ------------------------------------------------
 # Ende einstellbarer Variablen
 # ------------------------------------------------
@@ -76,19 +76,32 @@ DTD_HTML=`cat <<DTD
 DTD
 `
 
+# ------------------------------------------------
+# Ausgabe bevor Programm beginnt
+# ------------------------------------------------
+echo -e "\033[0;32m########################################################################\033[0m"
+echo -e "\033[0;32m#              Bilder/Texterkennung abspeichern vom MDZ                 \033[0m"
+echo -e "\033[0;32m# (Münchner DigitalisierungsZentrum: https://www.digitale-sammlungen.de)\033[0m"
+echo -e "\033[0;32m########################################################################\033[0m"
+
 if command -v jq &> /dev/null
 then
   diese_json_datei="${BIB_CODE_NUMER}-manifest.json"
   
   if [[ -e "${diese_json_datei}" ]];then
-    echo -e "\e[32m# Lese vorhandene IIIF Manifest für die Anzahl der Seiten (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
-    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq '.sequences[0].canvases | length ' )
+    echo -e "\e[32m# Seitenerfassung: Lese vorhandenes IIIF Manifest (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
+    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq -M '.sequences[0].canvases | length ' )
+    printf "\e[32m# Seitenerfassung: \e[0m%s\e[32m bis \e[0m%s\n" "$ERSTE_SEITENNUMMER" "$LETZTE_SEITENNUMMER"
+    printf "\e[32m# Seitenerfassung, Werk-Bezeichnung: \e[0m%s\n" "$( cat "${diese_json_datei}" | jq -M '.label ' )"
   else
-    echo -e "\e[32m# Erfasse IIIF Manifest aus dem Netz für die Anzahl der Seiten (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
+    echo -e "\e[32m# Seitenerfassung: Beziehe IIIF Manifest aus dem Netzgewerk (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
     wget --quiet --show-progress --output-document="${diese_json_datei}" \
       https://api.digitale-sammlungen.de/iiif/presentation/v2/${BIB_CODE_NUMER}/manifest
-    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq '.sequences[0].canvases | length ' )
+    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq -M '.sequences[0].canvases | length ' )
+    printf "\e[32m# Seitenerfassung: \e[0m%s\e[32m bis \e[0m%s\n" "$ERSTE_SEITENNUMMER" "$LETZTE_SEITENNUMMER"
+    printf "\e[32m# Seitenerfassung, Werk-Bezeichnung: \e[0m%s\n" "$( cat "${diese_json_datei}" | jq -M '.label ' )"
   fi
+  printf "\e[32m# ----------\n"
 fi
 
 ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE=$(
@@ -201,13 +214,6 @@ function dieseNetzQuelleGroesstmoeglichesBild () {
   
 }
 
-# ------------------------------------------------
-# Ausgabe bevor Programm beginnt
-# ------------------------------------------------
-echo -e "\033[0;32m########################################################################\033[0m"
-echo -e "\033[0;32m#              Bilder/Texterkennung abspeichern vom MDZ                 \033[0m"
-echo -e "\033[0;32m# (Münchner DigitalisierungsZentrum: https://www.digitale-sammlungen.de)\033[0m"
-echo -e "\033[0;32m########################################################################\033[0m"
 
 if [[ $ANWEISUNG_LADE_BILDER_HERUNTER -eq 0 ]] && [[ $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -eq 0 ]];then
 echo -e "\033[0;32m# \033[0;31mFehler:\033[0;32m keine Anweisung gefunden, weder Bilder noch Textauszug-Dateien sollen heruntergeladen werden (\033[0;31mAbbruch\033[0;32m)\033[0m"
@@ -242,7 +248,7 @@ fi
 echo -e "\033[0;32m# Arbeitsverzeichnis \033[0m${PWD}\033[0m"
 
 if [[ $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
-echo -e "\033[0;32m# Jetzt \033[0m${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER}\033[0;32m Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen und Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m zusammenfügen?\033[0m"
+echo -e "\033[0;32m# Jetzt \033[0m${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER}\033[0;32m Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen und \n# Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m zusammenfügen?\033[0m"
   if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]];then
 echo -e "\033[0;32m# (vorhandene Datei ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} wird \033[0;31müberschrieben\033[0;32m)\033[0m"
   fi
