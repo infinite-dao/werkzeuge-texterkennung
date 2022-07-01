@@ -38,6 +38,31 @@ Nötige Dateien:
 - [`./slub-dresden_Bilder_und_Texterkennung_herunterladen.sh`](slub-dresden_Bilder_und_Texterkennung_herunterladen.sh) (BASH-Programm)
 - [`./slub-dresden_Texterkennung_herausfiltern.xsl`](slub-dresden_Texterkennung_herausfiltern.xsl) (XML-Verarbeitung)
 
+### Inhaltsverzeichnis eines Werkes zusammenstellen
+
+Auf der Werk-Ansicht-Seite (z.B. http://digital.slub-dresden.de/id399169482/9) befindet sich links meistens eine Inhaltsgliederung, die von der Bibliothek bereits erfaßt wurde, und den Kapiteltext, Seitennummer und den Netzwerk-Ort (URL) angibt. Durch JavaScript kann man sich daraus ein Inhaltsverzeichnis erstellen.
+
+Für Wikitext, wenn man jQuery in des Netzprogramms Entwicklerkonsole zur Verfügung hat, erstellt man die Verweise, Kapitelbezeichnugen und Seitennummern wie folgt:
+```JavaScript
+jQuery('ul.toc li').each(function() {
+  var $a=jQuery(this).find('a'), wikitext="";
+  wikitext="[" 
+  + document.location.origin + $a.attr('href')
+  + " "
+  + $a.attr('title') 
+  + " (" 
+  + $a.find('span.pagination').text()
+  + ")"
+  + "]" 
+  ;
+  console.log(wikitext);
+});
+/* erzeugt Wikitext
+ [https://digital.slub-dresden.de/werkansicht/dlf/97829/17 Abbildung (1)]
+ [https://digital.slub-dresden.de/werkansicht/dlf/97829/19 Der Maschinenbauer und seine Hülfsmittel (3)]
+ usw.
+*/
+```
 
 ## Technische Abhängigkeiten
 
