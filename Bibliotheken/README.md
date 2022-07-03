@@ -46,12 +46,12 @@ Für Wikitext, wenn man jQuery in des Netzprogramms Entwicklerkonsole zur Verfü
 ```JavaScript
 // für Wikitext
 jQuery('ul.toc li').each(function() {
-  var $a=jQuery(this).find('a'), wikitext="", diese_seite=$a.find('span.pagination').text();
-  wikitext="[" 
-  + document.location.origin + $a.attr('href')
-  + " "
-  + $a.attr('title') + " (Seite " + diese_seite + ")"
-  + "]" 
+  var $a=jQuery(this).find('a')
+  , wikitext=""
+  , dieser_titel=$a.attr('title')
+  , diese_netzquelle=document.location.origin + $a.attr('href')
+  , diese_seite=$a.find('span.pagination').text();
+  wikitext="[" + diese_netzquelle + " "  + dieser_titel + " (Seite " + diese_seite + ")"  + "]" 
   ;
   console.log(wikitext);
 });
@@ -62,17 +62,36 @@ jQuery('ul.toc li').each(function() {
 */
 ```
 
-Für Text
+Für Text ohne oder mit Netzquelle
 ```JavaScript
-// für Text
+// für Text ohne Netzquelle
 jQuery('ul.toc li').each(function() {
-  var $a=jQuery(this).find('a'), nurtext="", diese_seite=$a.find('span.pagination').text();
-  nurtext="" + $a.attr('title') + ", Seite " + diese_seite ;
+  var $a=jQuery(this).find('a')
+  , nurtext=""
+  , dieser_titel=$a.attr('title')
+  , diese_seite=$a.find('span.pagination').text();
+  nurtext="" + dieser_titel + " (Seite " + diese_seite + ")" ;
   console.log(nurtext);
 });
-/* erzeugt Wikitext
+/* erzeugt Text
  Abbildung (Seite 1)
  Der Maschinenbauer und seine Hülfsmittel (Seite 3)
+ usw.
+*/
+
+// für Text mit Netzquelle
+jQuery('ul.toc li').each(function() {
+  var $a=jQuery(this).find('a')
+  , nurtext=""
+  , diese_netzquelle=document.location.origin + $a.attr('href')
+  , dieser_titel=$a.attr('title')
+  , diese_seite=$a.find('span.pagination').text();
+  nurtext="" + dieser_titel + " (Seite " + diese_seite + ") → " + diese_netzquelle ;
+  console.log(nurtext);
+});
+/* erzeugt Text
+ Abbildung (Seite 1) → https://digital.slub-dresden.de/werkansicht/dlf/97829/17
+ Der Maschinenbauer und seine Hülfsmittel (Seite 3) → https://digital.slub-dresden.de/werkansicht/dlf/97829/19
  usw.
 */
 ```
