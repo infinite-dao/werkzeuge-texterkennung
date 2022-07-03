@@ -21,19 +21,20 @@
 # Variablen zum Anpassen bevor Programm ausgeführt wird
 # Anfang einstellbarer Variablen
 # ------------------------------------------------
-  XSL_STIL_DATEI="slub-dresden_Texterkennung_herausfiltern.xsl"
+  # XSL_STIL_DATEI="slub-dresden_Texterkennung_herausfiltern.xsl"
+  XSL_STIL_DATEI=~/"Dokumente/Literatur/Buecher/Skripte/slub-dresden_Texterkennung_herausfiltern.xsl"
   # Hinweis: zu prüfen ist vielleicht auch, ob die api URL stimmig ist, siehe BASH-Funktionen:
   # - dieseNetzQuelleApiXmlHtmlSeite
   # - dieseNetzQuelleGroesstmoeglichesBild
   # # # # # 
   ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
   LETZTE_SEITENNUMMER=190 # Ganzzahl (kann von IIIF-Manifest automatisch ausgelesen werden, benötigt Programm jq)
-  BIB_CODE_NUMER="illuse_34545670X" # https://digital.slub-dresden.de/data/kitodo/sibebuvod_278555764/sibebuvod_278555764_tif/jpegs/00000675.tif.original.jpg
+  BIB_CODE_NUMER="SchwBuch_1668894807_0001" # 
 
-  WERK_KURZTITEL="Das illustrirtes Seilerbuch - Denhöfer - 1864" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
-  ANWEISUNG_LADE_BILDER_HERUNTER=1            # 0 oder 1
-  ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER=0     # 0 oder 1
-  ANWEISUNG_ERGAENZE_DTD_HTML=0               # 0 oder 1
+  WERK_KURZTITEL="Buch der schönsten Geschichten und Sagen, Bd.1 - Schwab - 1836" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
+  ANWEISUNG_LADE_BILDER_HERUNTER=0            # 0 oder 1
+  ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER=1     # 0 oder 1
+  ANWEISUNG_ERGAENZE_DTD_HTML=1               # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1  # 0 oder 1
   ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1  # 0 oder 1
   ANWEISUNG_TILGE_JSON_MANIFEST=1             # 0 oder 1
@@ -55,10 +56,12 @@ DTD
 
 if command -v jq &> /dev/null
 then
-  diese_urn_id=$( echo "${BIB_CODE_NUMER}" | sed --regexp-extended 's@^[^_]+_@@' )
+  diese_urn_id=$( echo "${BIB_CODE_NUMER}" | sed --regexp-extended 's@^[^_]+_@@; s@_[^_]+$@@;' )
   diese_json_datei="${BIB_CODE_NUMER}-manifest.json"
   # BIB_CODE_NUMER="illuse_34545670X"
   # https://iiif.slub-dresden.de/iiif/2/34545670X/manifest.json
+  # BIB_CODE_NUMER="SchwBuch_1668894807_0001" # 
+  # https://iiif.slub-dresden.de/iiif/2/1668894807/manifest.json
   
   if [[ -e "${diese_json_datei}" ]];then
     echo -e "\e[32m# Lese vorhandene IIIF Manifest für die Anzahl der Seiten (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
@@ -226,7 +229,7 @@ fi
 echo -e "\033[0;32m# Arbeitsverzeichnis \033[0m${PWD}\033[0m"
 
 if [[ $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
-echo -e "\033[0;32m# Jetzt \033[0m${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER}\033[0;32m Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen und Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m zusammenfügen?\033[0m"
+echo -e "\033[0;32m# Jetzt \033[0m${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER}\033[0;32m Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen\n# und Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m zusammenfügen?\033[0m"
   if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]];then
 echo -e "\033[0;32m# (vorhandene Datei ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} wird \033[0;31müberschrieben\033[0;32m)\033[0m"
   fi
