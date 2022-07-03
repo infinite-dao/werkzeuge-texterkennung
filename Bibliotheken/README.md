@@ -44,22 +44,35 @@ Auf der Werk-Ansicht-Seite (z.B. http://digital.slub-dresden.de/id399169482/9) b
 
 Für Wikitext, wenn man jQuery in des Netzprogramms Entwicklerkonsole zur Verfügung hat, erstellt man die Verweise, Kapitelbezeichnugen und Seitennummern wie folgt:
 ```JavaScript
+// für Wikitext
 jQuery('ul.toc li').each(function() {
-  var $a=jQuery(this).find('a'), wikitext="";
+  var $a=jQuery(this).find('a'), wikitext="", diese_seite=$a.find('span.pagination').text();
   wikitext="[" 
   + document.location.origin + $a.attr('href')
   + " "
-  + $a.attr('title') 
-  + " (" 
-  + $a.find('span.pagination').text()
-  + ")"
+  + $a.attr('title') + " (Seite " + diese_seite + ")"
   + "]" 
   ;
   console.log(wikitext);
 });
 /* erzeugt Wikitext
- [https://digital.slub-dresden.de/werkansicht/dlf/97829/17 Abbildung (1)]
- [https://digital.slub-dresden.de/werkansicht/dlf/97829/19 Der Maschinenbauer und seine Hülfsmittel (3)]
+ [https://digital.slub-dresden.de/werkansicht/dlf/97829/17 Abbildung (Seite 1)]
+ [https://digital.slub-dresden.de/werkansicht/dlf/97829/19 Der Maschinenbauer und seine Hülfsmittel (Seite 3)]
+ usw.
+*/
+```
+
+Für Text
+```JavaScript
+// für Text
+jQuery('ul.toc li').each(function() {
+  var $a=jQuery(this).find('a'), nurtext="", diese_seite=$a.find('span.pagination').text();
+  nurtext="" + $a.attr('title') + ", Seite " + diese_seite ;
+  console.log(nurtext);
+});
+/* erzeugt Wikitext
+ Abbildung (Seite 1)
+ Der Maschinenbauer und seine Hülfsmittel (Seite 3)
  usw.
 */
 ```
