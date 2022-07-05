@@ -115,8 +115,7 @@ jQuery('li.widget-toc__element').each(function() {
   ;
   console.log(wikitext);
 });
-
-/* Beispielausgabe
+/* Beispielausgabe Wikitext
 [https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/9/LOG_0004/ Inhalts-Verzeichnis.]
 [https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/11/LOG_0005/ Weihnachtslied.]
 [https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/12/LOG_0006/ Widmung.]
@@ -133,6 +132,13 @@ jQuery('li.widget-toc__element').each(function() {
   ;
   console.log(nurtext);
 });
+/* Beispielausgabe Text
+Einband → https://www.digitale-bibliothek-mv.de/viewer/image/PPN1759767042/1/LOG_0001/
+Werbung → https://www.digitale-bibliothek-mv.de/viewer/image/PPN1759767042/6/LOG_0002/
+Titelseite → https://www.digitale-bibliothek-mv.de/viewer/image/PPN1759767042/7/LOG_0003/
+Inhalt. → https://www.digitale-bibliothek-mv.de/viewer/image/PPN1759767042/11/LOG_0005/
+Wasser! Ein Weinmärchen. → https://www.digitale-bibliothek-mv.de/viewer/image/PPN1759767042/13/LOG_0006/
+*/
 ```
 
 ## Technische Abhängigkeiten
