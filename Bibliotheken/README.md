@@ -96,6 +96,45 @@ jQuery('ul.toc li').each(function() {
 */
 ```
 
+## Digitale Bibliothek Mecklenburg Vorpommern
+
+ZUTUN
+
+### Inhaltsverzeichnis eines Werkes zusammenstellen
+
+```javascript
+// für Wikitext
+// z.B von Seite https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/232/ aus 
+
+jQuery('li.widget-toc__element').each(function() {
+  var $a=jQuery(this).find('a')
+  , wikitext=""
+  , diese_netzquelle=$a.attr('href')
+  , dieser_titel=$a.attr('title')
+  wikitext="[" + diese_netzquelle + " " + dieser_titel + "]"
+  ;
+  console.log(wikitext);
+});
+
+/* Beispielausgabe
+[https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/9/LOG_0004/ Inhalts-Verzeichnis.]
+[https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/11/LOG_0005/ Weihnachtslied.]
+[https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/12/LOG_0006/ Widmung.]
+
+*/
+
+// für Text mit Netzquelle
+jQuery('li.widget-toc__element').each(function() {
+  var $a=jQuery(this).find('a')
+  , nurtext=""
+  , diese_netzquelle=$a.attr('href')
+  , dieser_titel=$a.attr('title')
+  nurtext="" + dieser_titel + " → " + diese_netzquelle + "" 
+  ;
+  console.log(nurtext);
+});
+```
+
 ## Technische Abhängigkeiten
 
 - Linux, BASH oder UNIX (?Mac)
