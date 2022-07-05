@@ -98,7 +98,7 @@ jQuery('ul.toc li').each(function() {
 
 ## Digitale Bibliothek Mecklenburg Vorpommern
 
-ZUTUN
+ZUTUN (der Bibliothek angebotenes PDF enthält Volltext im Dokument, falls vorhanden)
 
 ### Inhaltsverzeichnis eines Werkes zusammenstellen
 
