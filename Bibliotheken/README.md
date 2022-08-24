@@ -42,7 +42,16 @@ Nötige Dateien:
 
 Auf der Werk-Ansicht-Seite (z.B. http://digital.slub-dresden.de/id399169482/9) befindet sich links meistens eine Inhaltsgliederung, die von der Bibliothek bereits erfaßt wurde, und den Kapiteltext, Seitennummer und den Netzwerk-Ort (URL) angibt. Durch JavaScript kann man sich daraus ein Inhaltsverzeichnis erstellen.
 
-Für Wikitext, wenn man jQuery in des Netzprogramms Entwicklerkonsole zur Verfügung hat, erstellt man die Verweise, Kapitelbezeichnugen und Seitennummern wie folgt:
+Für Wikitext, wenn man jQuery in des Netzprogramms Entwicklerkonsole zur Verfügung hat, oder nachlädt …
+```JavaScript
+// https://stackoverflow.com/questions/7474354/include-jquery-in-the-javascript-console#7474386
+var jq = document.createElement('script');
+jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
+document.getElementsByTagName('head')[0].appendChild(jq);
+// ... dem Skript Zeit zum Nachladen geben, dann folgendes eintippen:
+jQuery.noConflict();
+```
+… erstellt man die Verweise, Kapitelbezeichnugen und Seitennummern wie folgt:
 ```JavaScript
 // für Wikitext
 jQuery('ul.toc li').each(function() {
