@@ -104,7 +104,7 @@ jQuery('ul.toc li').each(function() {
   , diese_netzquelle=document.location.origin + $a.attr('href')
   , dieser_titel=$a.attr('title')
   , diese_seite_text=jQuery.trim($a.find('span.pagination').text())
-  , diese_seite=(diese_seite_text == "-" ? "" : ("(Seite" + diese_seite_text + ")"));
+  , diese_seite=(diese_seite_text == "-" ? "" : ("(Seite " + diese_seite_text + ")"));
   Ergebnisse.push(dieser_titel + " " + diese_seite + " → " + diese_netzquelle) ;
 });
 
