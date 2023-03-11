@@ -42,7 +42,7 @@ Nötige Dateien:
 
 Auf der Werk-Ansicht-Seite (z.B. http://digital.slub-dresden.de/id399169482/9) befindet sich links meistens eine Inhaltsgliederung, die von der Bibliothek bereits erfaßt wurde, und den Kapiteltext, Seitennummer und den Netzwerk-Ort (URL) angibt. Durch JavaScript kann man sich daraus ein Inhaltsverzeichnis erstellen.
 
-Für Wikitext, wenn man jQuery in des Netzprogramms Entwicklerkonsole zur Verfügung hat, oder nachlädt …
+Falls kein jQuery auf derselben Netzseite von vornherein eingebunden ist, kann man versuchen es für die Entwicklerkonsole nachzuladen (auf vielen Netzseiten ist es schon eingebunden) …
 ```JavaScript
 // https://stackoverflow.com/questions/7474354/include-jquery-in-the-javascript-console#7474386
 var jq = document.createElement('script');
@@ -54,16 +54,19 @@ jQuery.noConflict();
 … erstellt man die Verweise, Kapitelbezeichnugen und Seitennummern wie folgt:
 ```JavaScript
 // für Wikitext
+var Ergebnisse=[]; // Array
+
 jQuery('ul.toc li').each(function() {
   var $a=jQuery(this).find('a')
   , wikitext=""
   , dieser_titel=$a.attr('title')
   , diese_netzquelle=document.location.origin + $a.attr('href')
   , diese_seite=$a.find('span.pagination').text();
-  wikitext="[" + diese_netzquelle + " "  + dieser_titel + " (Seite " + diese_seite + ")"  + "]" 
-  ;
-  console.log(wikitext);
+  Ergebnisse.push("[" + diese_netzquelle + " "  + dieser_titel + " (Seite " + diese_seite + ")"  + "]");
 });
+
+console.log(Ergebnisse.join("\n"));
+
 /* erzeugt Wikitext
  [https://digital.slub-dresden.de/werkansicht/dlf/97829/17 Abbildung (Seite 1)]
  [https://digital.slub-dresden.de/werkansicht/dlf/97829/19 Der Maschinenbauer und seine Hülfsmittel (Seite 3)]
@@ -74,14 +77,18 @@ jQuery('ul.toc li').each(function() {
 Für Text ohne oder mit Netzquelle
 ```JavaScript
 // für Text ohne Netzquelle
+var Ergebnisse=[]; // Array
+
 jQuery('ul.toc li').each(function() {
   var $a=jQuery(this).find('a')
   , nurtext=""
   , dieser_titel=$a.attr('title')
   , diese_seite=$a.find('span.pagination').text();
-  nurtext="" + dieser_titel + " (Seite " + diese_seite + ")" ;
-  console.log(nurtext);
+  Ergebnisse.push(dieser_titel + " (Seite " + diese_seite + ")") ;
 });
+
+console.log(Ergebnisse.join("\n"));
+
 /* erzeugt Text
  Abbildung (Seite 1)
  Der Maschinenbauer und seine Hülfsmittel (Seite 3)
@@ -89,15 +96,19 @@ jQuery('ul.toc li').each(function() {
 */
 
 // für Text mit Netzquelle
+var Ergebnisse=[]; // Array
+
 jQuery('ul.toc li').each(function() {
   var $a=jQuery(this).find('a')
   , nurtext=""
   , diese_netzquelle=document.location.origin + $a.attr('href')
   , dieser_titel=$a.attr('title')
   , diese_seite=$a.find('span.pagination').text();
-  nurtext="" + dieser_titel + " (Seite " + diese_seite + ") → " + diese_netzquelle ;
-  console.log(nurtext);
+  Ergebnisse.push(dieser_titel + " (Seite " + diese_seite + ") → " + diese_netzquelle) ;
 });
+
+console.log(Ergebnisse.join("\n"));
+
 /* erzeugt Text
  Abbildung (Seite 1) → https://digital.slub-dresden.de/werkansicht/dlf/97829/17
  Der Maschinenbauer und seine Hülfsmittel (Seite 3) → https://digital.slub-dresden.de/werkansicht/dlf/97829/19
@@ -115,15 +126,17 @@ ZUTUN (der Bibliothek angebotenes PDF enthält Volltext im Dokument, falls vorha
 // für Wikitext
 // z.B von Seite https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/232/ aus 
 
+var Ergebnisse=[]; // Array
 jQuery('li.widget-toc__element').each(function() {
   var $a=jQuery(this).find('a')
   , wikitext=""
   , diese_netzquelle=$a.attr('href')
   , dieser_titel=$a.attr('title')
-  wikitext="[" + diese_netzquelle + " " + dieser_titel + "]"
-  ;
-  console.log(wikitext);
+  Ergebnisse.push("[" + diese_netzquelle + " " + dieser_titel + "]");
 });
+
+console.log(Ergebnisse.join("\n"));
+
 /* Beispielausgabe Wikitext
 [https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/9/LOG_0004/ Inhalts-Verzeichnis.]
 [https://www.digitale-bibliothek-mv.de/viewer/fullscreen/PPN895415828/11/LOG_0005/ Weihnachtslied.]
@@ -132,15 +145,18 @@ jQuery('li.widget-toc__element').each(function() {
 */
 
 // für Text mit Netzquelle
+var Ergebnisse=[]; // Array
+
 jQuery('li.widget-toc__element').each(function() {
   var $a=jQuery(this).find('a')
   , nurtext=""
   , diese_netzquelle=$a.attr('href')
   , dieser_titel=$a.attr('title')
-  nurtext="" + dieser_titel + " → " + diese_netzquelle + "" 
-  ;
-  console.log(nurtext);
+  Ergebnisse.push(dieser_titel + " → " + diese_netzquelle + "");
 });
+
+console.log(Ergebnisse.join("\n"));
+
 /* Beispielausgabe Text
 Einband → https://www.digitale-bibliothek-mv.de/viewer/image/PPN1759767042/1/LOG_0001/
 Werbung → https://www.digitale-bibliothek-mv.de/viewer/image/PPN1759767042/6/LOG_0002/
