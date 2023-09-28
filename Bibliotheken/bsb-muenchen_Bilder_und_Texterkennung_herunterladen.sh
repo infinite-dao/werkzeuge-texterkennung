@@ -22,6 +22,7 @@
 # Anfang einstellbarer Variablen
 # ------------------------------------------------
   XSL_STIL_DATEI="bsb-muenchen_Texterkennung_herausfiltern.xsl"
+  # XSL_STIL_DATEI=~/"Dokumente/Literatur/Buecher/Skripte/bsb-muenchen_Texterkennung_herausfiltern.xsl"
   # Hinweis: zu prüfen ist vielleicht auch, ob die api URL stimmig ist, siehe BASH-Funktionen:
   # - dieseNetzQuelleApiXmlHtmlSeite
   # - dieseNetzQuelleGroesstmoeglichesBild
@@ -48,18 +49,24 @@
   # BIB_CODE_NUMER="bsb11346535" # Ausführliche Arbeit von der Teutſchen Hauptſprache [3-5] Schottel 1663
   # BIB_CODE_NUMER="bsb10303169" # Flora von Deutschland Schlechtendahl 08
   # BIB_CODE_NUMER="bsb00102935" # 29 Gedichte Rückert
-  BIB_CODE_NUMER="bsb11190615" # 
+  # BIB_CODE_NUMER="bsb10020094" # 
+  # BIB_CODE_NUMER="bsb11437424" # 
+  BIB_CODE_NUMER="bsb10583552" # 
+  
 
   ERSTE_SEITENNUMMER=1    # Ganzzahl: die tatsächliche Index-Nummer der Seite
-  LETZTE_SEITENNUMMER=180 # Ganzzahl (kann von IIIF-Manifest automatisch ausgelesen werden, benötigt Programm jq)
+  LETZTE_SEITENNUMMER=161 # Ganzzahl (kann von IIIF-Manifest automatisch ausgelesen werden, benötigt Programm jq)
   
-  WERK_KURZTITEL="Die mechanische Bearbeitung der Rohstoffe - Herget u.a. - Leipzig und Berlin 6.Aufl., 1874" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
-  ANWEISUNG_LADE_BILDER_HERUNTER=1            # 0 oder 1
-  ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER=1     # 0 oder 1
-  ANWEISUNG_ERGAENZE_DTD_HTML=1               # 0 oder 1
-  ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1  # 0 oder 1
-  ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1  # 0 oder 1
-  ANWEISUNG_TILGE_JSON_MANIFEST=0             # 0 oder 1
+  WERK_KURZTITEL="Versuch einer allgemeinen deutschen Synonymik (Bd. 1, A - C) - Eberhard - 1795" # kann leer sein ODER kurzer Titel, der dem Dateinamen vorangesetzt wird
+  
+  ANWEISUNG_LADE_BILDER_HERUNTER=0                         # 0 oder 1
+  ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER=1                  # 0 oder 1
+  ANWEISUNG_ERGAENZE_DTD_HTML=1                            # 0 oder 1
+  ANWEISUNG_TILGE_EINZELDATEIEN_BIBLIOTHEK=1               # 0 oder 1
+  ANWEISUNG_TILGE_EINZELDATEIEN_TEXTAUSZUG=1               # 0 oder 1
+  ANWEISUNG_TILGE_XML_GESAMTDATEI=1                        # 0 oder 1
+  ANWEISUNG_TILGE_JSON_MANIFEST=1                          # 0 oder 1
+  ANWEISUNG_VERWENDE_daten_digitale_sammlungen_de_BILDER=0 # 0 oder 1
 # ------------------------------------------------
 # Ende einstellbarer Variablen
 # ------------------------------------------------
@@ -90,16 +97,26 @@ then
   
   if [[ -e "${diese_json_datei}" ]];then
     echo -e "\e[32m# Seitenerfassung: Lese vorhandenes IIIF Manifest (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
-    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq -M '.sequences[0].canvases | length ' )
-    printf "\e[32m# Seitenerfassung: \e[0m%s\e[32m bis \e[0m%s\n" "$ERSTE_SEITENNUMMER" "$LETZTE_SEITENNUMMER"
-    printf "\e[32m# Seitenerfassung, Werk-Bezeichnung: \e[0m%s\n" "$( cat "${diese_json_datei}" | jq -M '.label ' )"
+    if [[ -s "${diese_json_datei}" ]];then
+      LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq -M '.sequences[0].canvases | length ' )
+      printf "\e[32m# Seitenerfassung: \e[0m%s\e[32m bis \e[0m%s\n" "$ERSTE_SEITENNUMMER" "$LETZTE_SEITENNUMMER"
+      printf "\e[32m# Seitenerfassung, Werk-Bezeichnung: \e[0m%s\n" "$( cat "${diese_json_datei}" | jq -M '.label ' )"
+    else
+      printf "\e[32m# Seitenerfassung: nicht möglich, Datei ist leer (wird gelöscht). Verwende Vorgabe: \e[0m%s\e[32m bis \e[0m%s\n" "$ERSTE_SEITENNUMMER" "$LETZTE_SEITENNUMMER"
+      rm "${diese_json_datei}"
+    fi
   else
     echo -e "\e[32m# Seitenerfassung: Beziehe IIIF Manifest aus dem Netzgewerk (\$LETZTE_SEITENNUMMER) vermittels \e[34mjq\e[32m …\e[0m"
     wget --quiet --show-progress --output-document="${diese_json_datei}" \
       https://api.digitale-sammlungen.de/iiif/presentation/v2/${BIB_CODE_NUMER}/manifest
-    LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq -M '.sequences[0].canvases | length ' )
-    printf "\e[32m# Seitenerfassung: \e[0m%s\e[32m bis \e[0m%s\n" "$ERSTE_SEITENNUMMER" "$LETZTE_SEITENNUMMER"
-    printf "\e[32m# Seitenerfassung, Werk-Bezeichnung: \e[0m%s\n" "$( cat "${diese_json_datei}" | jq -M '.label ' )"
+    if [[ -s "${diese_json_datei}" ]];then
+      LETZTE_SEITENNUMMER=$( cat "${diese_json_datei}" | jq -M '.sequences[0].canvases | length ' )
+      printf "\e[32m# Seitenerfassung: \e[0m%s\e[32m bis \e[0m%s\n" "$ERSTE_SEITENNUMMER" "$LETZTE_SEITENNUMMER"
+      printf "\e[32m# Seitenerfassung, Werk-Bezeichnung: \e[0m%s\n" "$( cat "${diese_json_datei}" | jq -M '.label ' )"
+    else
+      printf "\e[32m# Seitenerfassung: nicht möglich, Datei ist leer (wird gelöscht). Verwende Vorgabe: \e[0m%s\e[32m bis \e[0m%s\n" "$ERSTE_SEITENNUMMER" "$LETZTE_SEITENNUMMER"
+      rm "${diese_json_datei}"
+    fi
   fi
   printf "\e[32m# ----------\n"
 fi
@@ -210,8 +227,13 @@ function dieseNetzQuelleGroesstmoeglichesBild () {
   local dieseNummer=`expr $1 + 0`
 
   # https://api.digitale-sammlungen.de/iiif/image/v2/bsb10114299_00117/full/full/0/default.jpg
-  printf "https://api.digitale-sammlungen.de/iiif/image/v2/${BIB_CODE_NUMER}_%0${GanzahlStellen}d/full/full/0/default.jpg" $dieseNummer
-  
+  # printf "https://api.digitale-sammlungen.de/iiif/image/v2/${BIB_CODE_NUMER}_%0${GanzahlStellen}d/full/full/0/default.jpg" $dieseNummer
+  if [[ $ANWEISUNG_VERWENDE_daten_digitale_sammlungen_de_BILDER -gt 0 ]]; then
+    # printf "https://daten.digitale-sammlungen.de/0009/${BIB_CODE_NUMER}/images/300/${BIB_CODE_NUMER}_%0${GanzahlStellen}d.jpg" $dieseNummer    
+    printf "https://daten.digitale-sammlungen.de/0009/${BIB_CODE_NUMER}/images/${BIB_CODE_NUMER}_%0${GanzahlStellen}d.jpg" $dieseNummer
+  else
+    printf "https://api.digitale-sammlungen.de/iiif/image/v2/${BIB_CODE_NUMER}_%0${GanzahlStellen}d/full/full/0/default.jpg" $dieseNummer
+  fi
 }
 
 
@@ -222,7 +244,7 @@ fi
 
 
 if [[ $ANWEISUNG_LADE_BILDER_HERUNTER -gt 0 ]];then
-echo -e "\033[0;32m# Bilddateien herunterladen …\033[0m"
+echo -e "\033[0;32m# [x] Bilddateien herunterladen …\033[0m"
 # else
 # echo -e "\033[0;32m# Keine Bild herunterladen und XML Textauszug erstellen …\033[0m"
 fi 
@@ -242,13 +264,19 @@ echo -e "\033[0;32m# Nacharbeiten: Einzelseitige Textauszug-Dateien \033[0;31mbl
 echo -e "\033[0;32m# Nacharbeiten: Bereinige schlußendlich einzelseitige Texterkennung-Bibliothek-Dateien …\033[0m"
   else
 echo -e "\033[0;32m# Nacharbeiten: Einzelseitige Texterkennung-Bibliothek-Dateien \033[0;31mbleiben\033[0;32m im Verzeichnis liegen …\033[0m"
-  fi 
+  fi
+  
+  if [[ $ANWEISUNG_TILGE_XML_GESAMTDATEI -gt 0 ]];then
+echo -e "\033[0;32m# Abschluß:     Tilge Datei\033[0m ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}"
+echo -e "\033[0;32m# Abschluß:     Behalte Text-Datei\033[0m ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt"
+  fi
+
 fi
 
 echo -e "\033[0;32m# Arbeitsverzeichnis \033[0m${PWD}\033[0m"
 
 if [[ $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
-echo -e "\033[0;32m# Jetzt \033[0m${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER}\033[0;32m Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen und \n# Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m zusammenfügen?\033[0m"
+echo -e "\033[0;32m# Jetzt \033[0m${ERSTE_SEITENNUMMER} bis ${LETZTE_SEITENNUMMER}\033[0;32m Seitennummern mit Bibliothek-Code \033[0m${BIB_CODE_NUMER}\033[0;32m herunterladen und \n# Text in \033[0m${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}\033[0;32m usw. zusammenfügen?\033[0m"
   if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]];then
 echo -e "\033[0;32m# (vorhandene Datei ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} wird \033[0;31müberschrieben\033[0;32m)\033[0m"
   fi
@@ -264,10 +292,10 @@ echo -en "\033[0;32m# (ja/\033[4mnein\e[0;32m)\033[0m "
 read janein
 if [[ -z ${janein// /} ]];then janein="nein"; fi
 case $janein in
-  [jJ]|[jJ][aA])
+  [jJ]|[yY]|[yY][eE][sS]|[jJ][aA])
     echo "# Weiter ..."
   ;;
-  [nN]|[nN][eE][iI][nN])
+  [nN]|[nN][oO]|[nN][eE][iI][nN])
     echo "# Stop";
     exit 1
   ;;
@@ -364,7 +392,9 @@ if [[  $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
       echo "# Verarbeitung: erstelle Textdatei (XML -> TXT, Programm pandoc) ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt …"
       echo "# Verarbeitung: füge <br/> zwischenzeitlich ein vor jeder </Zeile>, damit Zeilenumbrüche in Textdatei erscheinen, sonst würde pandoc fließende Absätze ausformen …"
       sed -r 's@</Zeile>$@<br/></Zeile>@;'  "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" | pandoc -f html -t plain > "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt"
+      if [[ $ANWEISUNG_TILGE_XML_GESAMTDATEI -eq 0 ]];then
       echo "# Ergebnis siehe  XML-Datei: ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}"
+      fi
       echo "# Ergebnis siehe Text-Datei: ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}.txt"
     else
       echo -e "\e[31m# Fehler:\e[0m XML-Datei für den Textauszug ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} konnte nicht erstellt werden (vielleicht gibt es Netzwerkprobleme oder andere Fehler) …"
@@ -399,6 +429,13 @@ if [[  $ANWEISUNG_LADE_TEXTERKENNUNG_HERUNTER -gt 0 ]];then
     find . -name "$suchfilter_texterkennung" -type f -exec ls '{}' + \
       | sed -r 's@_[0-9]+.html@_*.html@' | uniq -c | sed 's@^@# Siehe auch Textauszug-Dateien:@'
   fi
+  if [[ $ANWEISUNG_TILGE_XML_GESAMTDATEI -gt 0 ]];then
+    if [[ -e "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}" ]]; then 
+      echo -e "\033[0;32m# Lösche XML\033[0m ${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE} …"
+      rm "${ZIELDATEI_ZUSAMMENGEKLAUBTER_XML_TEXTE}"; 
+    fi
+  fi
+
 fi
 
 if [[ $ANWEISUNG_LADE_BILDER_HERUNTER -gt 0 ]];then
